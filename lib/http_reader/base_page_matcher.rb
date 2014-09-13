@@ -1,6 +1,6 @@
 module HttpReader
   class BasePageMatcher
-    @pattern = /^o2.pl$/i
+    @pattern = /^.*$/
 
     class << self
       attr_reader :pattern
