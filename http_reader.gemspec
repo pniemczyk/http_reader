@@ -9,8 +9,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Paweł Niemczyk']
   spec.email         = ['pniemczyk@o2.pl']
   spec.description   = %q{Read page body and parse to specific data}
-  spec.summary       = %q{Read page body and parse to specific data}
-  spec.homepage      = ''
+  spec.summary       = %q{Page parser}
+  spec.homepage      = 'https://github.com/pniemczyk/http_reader'
   spec.license       = 'MIT'
 
   spec.files         = `git ls-files`.split($/)
@@ -18,10 +18,18 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ['lib']
 
+  spec.add_dependency 'httparty', '~> 0.13.1'
+  spec.add_dependency 'nokogiri', '~> 1.6.3.1'
+  spec.add_dependency 'headless', '~> 1.0.2'
+  spec.add_dependency 'watir-webdriver', '~> 0.6.10'
+
   spec.add_development_dependency 'bundler', '~> 1.3'
   spec.add_development_dependency 'rake'
   spec.add_development_dependency 'rspec', '~> 3.1'
+  spec.add_development_dependency 'guard-rspec'
   spec.add_development_dependency 'coveralls'
+  spec.add_development_dependency 'awesome_print'
 
-  spec.post_install_message = 'Have fun !'
+  spec.post_install_message = 'Do not forget install xvfb. Have fun !'
 end
+
