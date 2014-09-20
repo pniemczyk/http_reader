@@ -1,4 +1,5 @@
 require 'bundler/setup'
+require 'awesome_print'
 Bundler.setup
 
 require 'coveralls'
