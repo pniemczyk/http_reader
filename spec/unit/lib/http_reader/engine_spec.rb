@@ -164,22 +164,41 @@ describe HttpReader::Engine do
       subject.read(test_url, request_opts: request_opts)
     end
 
-    it 'should provide request_opts to request method' do
+    it 'should provide browse_opts to request method' do
       message      = 'done'
       browse_opts  = { process: :continue, message: message}
       browser_body = "body"
       response = described_class::DefaultResponse.new(browser_body, 200, message)
-      expect(Headless).to receive(:new).and_return(headless)
+      expect(Headless).to receive(:new).with(display: 100, reuse: true, destroy_at_exit: true).and_return(headless)
       expect(headless).to receive(:start)
       expect(default_parser).to receive(:use_browser).and_return(true)
-      expect(browser).to receive(:start).with(test_url).and_return(active_browser)
+      expect(browser).to receive(:new).and_return(active_browser)
+      expect(active_browser).to receive(:goto).with(test_url)
       expect(default_parser).to receive(:browse_actions_for_html)
                                 .with(active_browser, browse_opts)
                                 .and_return(browser_body)
-      expect(active_browser).to receive(:close)
-      expect(headless).to receive(:destroy)
       expect(default_parser).to receive(:parse).with(response, {})
 
+      subject.read(test_url, browse_opts: browse_opts)
+    end
+
+    it 'should close browser and destroy headless after browse' do
+      message      = 'done'
+      browse_opts  = { process: :continue, message: message}
+      browser_body = "body"
+      response = described_class::DefaultResponse.new(browser_body, 200, message)
+      expect(Headless).to receive(:new).with(display: 100, reuse: true, destroy_at_exit: true).and_return(headless)
+      expect(headless).to receive(:start)
+      expect(default_parser).to receive(:use_browser).and_return(true)
+      expect(browser).to receive(:new).and_return(active_browser)
+      expect(active_browser).to receive(:goto).with(test_url)
+      expect(default_parser).to receive(:browse_actions_for_html)
+                                .with(active_browser, browse_opts)
+                                .and_return(browser_body)
+      expect(default_parser).to receive(:parse).with(response, {})
+      subject.instance_variable_set(:@browser_keep_running,false)
+      expect(active_browser).to receive(:close)
+      expect(headless).to receive(:destroy)
       subject.read(test_url, browse_opts: browse_opts)
     end
 
@@ -206,7 +225,7 @@ describe HttpReader::Engine do
         error_msg = 'HttpReader::Engine#browse - Bad '
         response  = described_class::DefaultResponse.new(nil, 500, 'Bad')
         expect(default_parser).to receive(:use_browser).and_return(true)
-        expect(browser).to receive(:start).with(test_url).and_raise('Bad')
+        expect(browser).to receive(:new).and_raise('Bad')
         expect(default_parser).to receive(:parse).with(response, {})
         expect(logger).to receive(:error).with(error_msg)
         subject.read(test_url)

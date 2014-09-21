@@ -8,7 +8,7 @@ module HttpReader
   class Engine
     ReadError       = Class.new(StandardError)
     DefaultResponse = Struct.new(:body, :code, :message, :headers)
-    attr_reader :parsers, :default_parser, :http_client, :browser, :logger
+    attr_reader :parsers, :default_parser, :http_client, :browser, :logger, :browser_keep_running
 
     def initialize(config = {})
       @parsers        = config.fetch(:parsers, [])
@@ -16,6 +16,7 @@ module HttpReader
       @http_client    = config.fetch(:http_client, HTTParty)
       @browser        = config.fetch(:browser, Watir::Browser)
       @logger         = config.fetch(:logger, Logger.new(STDOUT))
+      @browser_keep_running = config.fetch(:browser_keep_running, true)
     end
 
     def read(url, opts = {})
@@ -35,6 +36,12 @@ module HttpReader
       raise ReadError.new(e.message)
     end
 
+    def close_browser
+      active_browser.close
+      headless.destroy
+      @active_browser = nil
+    end
+
     private
 
     def find_parser(url)
@@ -46,12 +53,9 @@ module HttpReader
     end
 
     def browse(url, parser, opts = {})
-      html = nil
-      headless.start
-      b    = browser.start(url)
-      html = parser.browse_actions_for_html(b, opts)
-      b.close
-      headless.destroy
+      active_browser.goto(url)
+      html = parser.browse_actions_for_html(active_browser, opts)
+      close_browser unless browser_keep_running
       DefaultResponse.new(html, 200, opts[:message] || "success")
     rescue => e
       log_error('browse', e)
@@ -67,8 +71,17 @@ module HttpReader
       DefaultResponse.new(nil, 500, e.message)
     end
 
+    def active_browser
+      @active_browser ||= new_browser
+    end
+
+    def new_browser
+      headless.start
+      browser.new
+    end
+
     def headless
-      @headless ||= Headless.new
+      @headless ||= Headless.new(display: 100, reuse: true, destroy_at_exit: true)
     end
 
     def log_error(method, ex, info = nil)
