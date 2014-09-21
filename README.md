@@ -1,4 +1,8 @@
 # HttpReader
+[![Gem Version](https://badge.fury.io/rb/http_reader.svg)](http://badge.fury.io/rb/http_reader)
+[![Build Status](https://secure.travis-ci.org/pniemczyk/http_reader.png?branch=master)](https://travis-ci.org/pniemczyk/http_reader) 
+[![Dependency Status](https://gemnasium.com/pniemczyk/http_reader.png)](https://gemnasium.com/pniemczyk/http_reader)
+[![Code Climate](https://codeclimate.com/github/pniemczyk/http_reader/badges/gpa.svg)](https://codeclimate.com/github/pniemczyk/http_reader)
 
 Read any document on internet and parse to your own format :D
 
@@ -100,9 +104,10 @@ Or install it yourself as:
 - httparty
 - headless
 - watir-webdriver
+
 ### System components
 - xvfb
-instalation on ubuntu: sudo apt-get install xvfb
+*instalation on ubuntu: sudo apt-get install xvfb*
 
 
 ## Contributing
